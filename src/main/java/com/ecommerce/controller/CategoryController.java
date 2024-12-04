@@ -1,7 +1,7 @@
-package com.ecommerce.project.controller;
+package com.ecommerce.controller;
 
-import com.ecommerce.project.model.Category;
-import com.ecommerce.project.service.CategoryService;
+import com.ecommerce.model.Category;
+import com.ecommerce.service.CategoryService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

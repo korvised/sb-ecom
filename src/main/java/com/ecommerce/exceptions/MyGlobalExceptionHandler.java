@@ -1,4 +1,4 @@
-package com.ecommerce.project.exceptions;
+package com.ecommerce.exceptions;
 
 public class MyGlobalExceptionHandler {
 }
