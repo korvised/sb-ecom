@@ -1,11 +1,10 @@
 package com.ecommerce.service;
 
+import com.ecommerce.exceptions.ResourceNotFoundException;
 import com.ecommerce.model.Category;
 import com.ecommerce.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -32,7 +31,7 @@ public class CategoryServiceImp implements CategoryService {
                     existingCategory.setCategoryName(category.getCategoryName());
                     return categoryRepository.save(existingCategory);
                 })
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
     }
 
     @Override
@@ -41,7 +40,7 @@ public class CategoryServiceImp implements CategoryService {
                 .ifPresentOrElse(
                         categoryRepository::delete,
                         () -> {
-                            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found");
+                            throw new ResourceNotFoundException("Category", "categoryId", categoryId);
                         }
                 );
     }
