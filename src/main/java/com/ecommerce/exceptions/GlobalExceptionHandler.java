@@ -1,5 +1,6 @@
 package com.ecommerce.exceptions;
 
+import com.ecommerce.payload.APIResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -12,6 +13,12 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<APIResponse> globalExceptionHandler(Exception e) {
+        APIResponse apiResponse = new APIResponse(false, e.getMessage());
+        return new ResponseEntity<>(apiResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> methodArgumentNotValidHandler(MethodArgumentNotValidException e) {
@@ -26,12 +33,14 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<String> resourceNotFoundHandler(ResourceNotFoundException e) {
-        return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+    public ResponseEntity<APIResponse> resourceNotFoundHandler(ResourceNotFoundException e) {
+        APIResponse apiResponse = new APIResponse(false, e.getMessage());
+        return new ResponseEntity<>(apiResponse, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(ApiException.class)
-    public ResponseEntity<String> apiExceptionHandler(ApiException e) {
-        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    public ResponseEntity<APIResponse> apiExceptionHandler(ApiException e) {
+        APIResponse apiResponse = new APIResponse(false, e.getMessage());
+        return new ResponseEntity<>(apiResponse, HttpStatus.BAD_REQUEST);
     }
 }
