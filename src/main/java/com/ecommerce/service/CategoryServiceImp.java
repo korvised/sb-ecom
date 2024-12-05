@@ -8,6 +8,9 @@ import com.ecommerce.payload.CategoryResponse;
 import com.ecommerce.repository.CategoryRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,10 +25,11 @@ public class CategoryServiceImp implements CategoryService {
     private ModelMapper modelMapper;
 
     @Override
-    public CategoryResponse getAllCategories() {
-        List<Category> categories = categoryRepository.findAll();
+    public CategoryResponse getAllCategories(Integer pageNumber, Integer pageSize) {
+        Pageable pageDetails = PageRequest.of(pageNumber - 1, pageSize);
+        Page<Category> categories = categoryRepository.findAll(pageDetails);
 
-        List<CategoryDTO> categoryDTOS = categories.stream()
+        List<CategoryDTO> categoryDTOS = categories.getContent().stream()
                 .map(category -> modelMapper.map(category, CategoryDTO.class))
                 .toList();
 
