@@ -1,6 +1,6 @@
 package com.ecommerce.controller;
 
-import com.ecommerce.model.Category;
+import com.ecommerce.payload.CategoryDTO;
 import com.ecommerce.payload.CategoryResponse;
 import com.ecommerce.service.CategoryService;
 import jakarta.validation.Valid;
@@ -25,14 +25,14 @@ public class CategoryController {
     }
 
     @PostMapping
-    public ResponseEntity<Category> createCategory(@Valid @RequestBody Category category) {
-        Category createdCategory = categoryService.createCategory(category);
+    public ResponseEntity<CategoryDTO> createCategory(@Valid @RequestBody CategoryDTO category) {
+        CategoryDTO createdCategory = categoryService.createCategory(category);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdCategory);
     }
 
     @PutMapping("/{categoryId}")
-    public ResponseEntity<Category> updateCategory(@PathVariable long categoryId, @Valid @RequestBody Category category) {
-        Category updatedCategory = categoryService.updateCategory(categoryId, category);
+    public ResponseEntity<CategoryDTO> updateCategory(@PathVariable long categoryId, @Valid @RequestBody CategoryDTO category) {
+        CategoryDTO updatedCategory = categoryService.updateCategory(categoryId, category);
         return ResponseEntity.ok(updatedCategory);
     }
 
