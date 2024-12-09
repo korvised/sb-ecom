@@ -7,6 +7,7 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.ArrayList;
@@ -19,22 +20,16 @@ public class ProductSpecification implements Specification<Product> {
     private final Category category;
 
     @Override
-    public Predicate toPredicate(Root<Product> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+    public Predicate toPredicate(@NonNull Root<Product> root, CriteriaQuery<?> query, @NonNull CriteriaBuilder criteriaBuilder) {
         List<Predicate> predicates = new ArrayList<>();
 
         // Search condition for productName and description
         if (search != null && !search.isEmpty()) {
             // Create a condition to search for the productName
-            Predicate namePredicate = criteriaBuilder.like(
-                    criteriaBuilder.lower(root.get("productName")),
-                    "%" + search.toLowerCase() + "%"
-            );
+            Predicate namePredicate = criteriaBuilder.like(criteriaBuilder.lower(root.get("productName")), "%" + search.toLowerCase() + "%");
 
             // Create a condition to search for the description
-            Predicate descriptionPredicate = criteriaBuilder.like(
-                    criteriaBuilder.lower(root.get("description")),
-                    "%" + search.toLowerCase() + "%"
-            );
+            Predicate descriptionPredicate = criteriaBuilder.like(criteriaBuilder.lower(root.get("description")), "%" + search.toLowerCase() + "%");
 
             // Add the OR condition for both productName and description
             predicates.add(criteriaBuilder.or(namePredicate, descriptionPredicate));
