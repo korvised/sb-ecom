@@ -18,8 +18,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
 @AllArgsConstructor
+@Service
 public class ProductServiceImpl implements ProductService {
 
     private final CategoryRepository categoryRepository;
