@@ -11,6 +11,6 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CategoryResponse extends PaginationDTO {
-    private List<CategoryDTO> content;
+public class ProductResponse extends PaginationDTO {
+    List<ProductDTO> content;
 }
