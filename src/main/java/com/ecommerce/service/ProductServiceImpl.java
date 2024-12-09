@@ -7,6 +7,7 @@ import com.ecommerce.payload.ProductDTO;
 import com.ecommerce.payload.ProductResponse;
 import com.ecommerce.repository.CategoryRepository;
 import com.ecommerce.repository.ProductRepository;
+import com.ecommerce.specification.ProductSpecification;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -30,21 +31,32 @@ public class ProductServiceImpl implements ProductService {
     private ModelMapper modelMapper;
 
     @Override
-    public ProductResponse getAllProducts(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+    public ProductResponse getAllProducts(String search, Long categoryId, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+        // Fetch the category if categoryId is provided
+        Category category = (categoryId != null)
+                ? categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "CategoryId", categoryId))
+                : null;
+
+        // Determine the sort order
         Sort sort = sortOrder.equalsIgnoreCase("asc")
                 ? Sort.by(sortBy).ascending()
                 : Sort.by(sortBy).descending();
 
+        // Define pagination details
         Pageable pageDetails = PageRequest.of(pageNumber - 1, pageSize, sort);
-        Page<Product> productPage = productRepository.findAll(pageDetails);
 
-        List<Product> products = productPage.getContent();
-        List<ProductDTO> productDTOS = products.stream()
+        // Retrieve products with filtering
+        Page<Product> productPage = productRepository.findAll(ProductSpecification.filterProducts(search, category), pageDetails);
+
+        // Map entities to DTOs
+        List<ProductDTO> productDTOs = productPage.getContent()
+                .stream()
                 .map(product -> modelMapper.map(product, ProductDTO.class))
                 .toList();
 
         ProductResponse productResponse = new ProductResponse();
-        productResponse.setContent(productDTOS);
+        productResponse.setContent(productDTOs);
         productResponse.setPageNumber(productPage.getNumber() + 1);
         productResponse.setPageSize(productPage.getSize());
         productResponse.setTotalElements(productPage.getTotalElements());
