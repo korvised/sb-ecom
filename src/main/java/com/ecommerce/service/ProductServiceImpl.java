@@ -46,8 +46,11 @@ public class ProductServiceImpl implements ProductService {
         // Define pagination details
         Pageable pageDetails = PageRequest.of(pageNumber - 1, pageSize, sort);
 
-        // Retrieve products with filtering
-        Page<Product> productPage = productRepository.findAll(ProductSpecification.filterProducts(search, category), pageDetails);
+        // Create the ProductSpecification with search and category
+        ProductSpecification specification = new ProductSpecification(search, category);
+
+        // Retrieve products with filtering (search and category)
+        Page<Product> productPage = productRepository.findAll(specification, pageDetails);
 
         // Map entities to DTOs
         List<ProductDTO> productDTOs = productPage.getContent()
