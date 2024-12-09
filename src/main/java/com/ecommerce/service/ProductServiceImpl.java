@@ -66,35 +66,6 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductResponse getProductsByCategory(Long categoryId, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
-        Category category = categoryRepository.findById(categoryId).
-                orElseThrow(() -> new ResourceNotFoundException("Category", "CategoryId", categoryId));
-
-        Sort sort = sortOrder.equalsIgnoreCase("asc")
-                ? Sort.by(sortBy).ascending()
-                : Sort.by(sortBy).descending();
-
-        Pageable pageDetails = PageRequest.of(pageNumber - 1, pageSize, sort);
-        Page<Product> productPage = productRepository.findByCategory(category, pageDetails);
-
-        List<Product> products = productPage.getContent();
-        List<ProductDTO> productDTOS = products.stream()
-                .filter(product -> product.getCategory().equals(category))
-                .map(product -> modelMapper.map(product, ProductDTO.class))
-                .toList();
-
-        ProductResponse productResponse = new ProductResponse();
-        productResponse.setContent(productDTOS);
-        productResponse.setPageNumber(productPage.getNumber() + 1);
-        productResponse.setPageSize(productPage.getSize());
-        productResponse.setTotalElements(productPage.getTotalElements());
-        productResponse.setTotalPages(productPage.getTotalPages());
-        productResponse.setLastPage(productPage.isLast());
-
-        return productResponse;
-    }
-
-    @Override
     public ProductDTO addProduct(Product product, Long categoryId) {
         Category category = categoryRepository.findById(categoryId).
                 orElseThrow(() -> new ResourceNotFoundException("Category", "CategoryId", categoryId));

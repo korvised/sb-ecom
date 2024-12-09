@@ -6,7 +6,6 @@ import com.ecommerce.payload.ProductDTO;
 import com.ecommerce.payload.ProductResponse;
 import com.ecommerce.service.ProductService;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/products")
 public class ProductController {
 
-    @Autowired
     private ProductService productService;
 
     @GetMapping
@@ -26,23 +24,11 @@ public class ProductController {
             @RequestParam(name = "page", defaultValue = AppConstants.PAGE_NUMBER) Integer pageNumber,
             @RequestParam(name = "size", defaultValue = AppConstants.PAGE_SIZE) Integer pageSize,
             @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_PRODUCT_BY) String sortBy,
-            @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIRECTION) String sortOrder
+            @RequestParam(name = "orderDirection", defaultValue = AppConstants.SORT_DIRECTION) String sortOrder
     ) {
         System.out.println("search: " + search);
         System.out.println("categoryId: " + categoryId);
         ProductResponse productResponse = productService.getAllProducts(search, categoryId, pageNumber, pageSize, sortBy, sortOrder);
-        return ResponseEntity.ok(productResponse);
-    }
-
-    @GetMapping("/category/{categoryId}")
-    public ResponseEntity<ProductResponse> getProductsByCategory(
-            @PathVariable Long categoryId,
-            @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER) Integer pageNumber,
-            @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE) Integer pageSize,
-            @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_PRODUCT_BY) String sortBy,
-            @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIRECTION) String sortOrder
-    ) {
-        ProductResponse productResponse = productService.getProductsByCategory(categoryId, pageNumber, pageSize, sortBy, sortOrder);
         return ResponseEntity.ok(productResponse);
     }
 
