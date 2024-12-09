@@ -26,8 +26,6 @@ public class ProductController {
             @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_PRODUCT_BY) String sortBy,
             @RequestParam(name = "orderDirection", defaultValue = AppConstants.SORT_DIRECTION) String sortOrder
     ) {
-        System.out.println("search: " + search);
-        System.out.println("categoryId: " + categoryId);
         ProductResponse productResponse = productService.getAllProducts(search, categoryId, pageNumber, pageSize, sortBy, sortOrder);
         return ResponseEntity.ok(productResponse);
     }

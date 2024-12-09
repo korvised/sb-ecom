@@ -10,9 +10,6 @@ import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @AllArgsConstructor
 public class ProductSpecification implements Specification<Product> {
 
@@ -21,27 +18,34 @@ public class ProductSpecification implements Specification<Product> {
 
     @Override
     public Predicate toPredicate(@NonNull Root<Product> root, CriteriaQuery<?> query, @NonNull CriteriaBuilder criteriaBuilder) {
-        List<Predicate> predicates = new ArrayList<>();
+        Predicate finalPredicate = criteriaBuilder.conjunction();
 
         // Search condition for productName and description
         if (search != null && !search.isEmpty()) {
-            // Create a condition to search for the productName
-            Predicate namePredicate = criteriaBuilder.like(criteriaBuilder.lower(root.get("productName")), "%" + search.toLowerCase() + "%");
+            Predicate namePredicate = criteriaBuilder.like(
+                    criteriaBuilder.lower(root.get("productName")),
+                    "%" + search.toLowerCase() + "%"
+            );
+            Predicate descriptionPredicate = criteriaBuilder.like(
+                    criteriaBuilder.lower(root.get("description")),
+                    "%" + search.toLowerCase() + "%"
+            );
 
-            // Create a condition to search for the description
-            Predicate descriptionPredicate = criteriaBuilder.like(criteriaBuilder.lower(root.get("description")), "%" + search.toLowerCase() + "%");
-
-            // Add the OR condition for both productName and description
-            predicates.add(criteriaBuilder.or(namePredicate, descriptionPredicate));
+            // Combine the two conditions with OR
+            finalPredicate = criteriaBuilder.and(
+                    finalPredicate, // "existing" predicate (starts as true)
+                    criteriaBuilder.or(namePredicate, descriptionPredicate) // combine with new condition
+            );
         }
 
         // Filter by category if it is provided
         if (category != null) {
-            // Add the condition to filter by category
-            predicates.add(criteriaBuilder.equal(root.get("category"), category));
+            Predicate categoryPredicate = criteriaBuilder.equal(root.get("category"), category);
+
+            // Combine the category filter with the existing predicates using AND
+            finalPredicate = criteriaBuilder.and(finalPredicate, categoryPredicate);
         }
 
-        // Combine all predicates with an AND condition and return
-        return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        return finalPredicate;
     }
 }
