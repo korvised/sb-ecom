@@ -5,13 +5,13 @@ import com.ecommerce.model.Product;
 import com.ecommerce.payload.ProductDTO;
 import com.ecommerce.payload.ProductResponse;
 import com.ecommerce.service.ProductService;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
+@AllArgsConstructor
 @RestController
 @RequestMapping("/api/v1/products")
 public class ProductController {
