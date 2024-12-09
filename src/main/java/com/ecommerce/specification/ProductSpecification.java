@@ -33,8 +33,8 @@ public class ProductSpecification implements Specification<Product> {
 
             // Combine the two conditions with OR
             finalPredicate = criteriaBuilder.and(
-                    finalPredicate, // "existing" predicate (starts as true)
-                    criteriaBuilder.or(namePredicate, descriptionPredicate) // combine with new condition
+                    finalPredicate,
+                    criteriaBuilder.or(namePredicate, descriptionPredicate)
             );
         }
 
