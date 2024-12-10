@@ -1,5 +1,6 @@
 package com.ecommerce.service;
 
+import com.ecommerce.exceptions.ApiException;
 import com.ecommerce.exceptions.ResourceNotFoundException;
 import com.ecommerce.model.Category;
 import com.ecommerce.model.Product;
@@ -79,6 +80,12 @@ public class ProductServiceImpl implements ProductService {
     public ProductDTO addProduct(ProductDTO productDTO, Long categoryId) {
         Category category = categoryRepository.findById(categoryId).
                 orElseThrow(() -> new ResourceNotFoundException("Category", "CategoryId", categoryId));
+
+        for (Product product : category.getProducts()) {
+            if (product.getProductName().equalsIgnoreCase(productDTO.getProductName())) {
+                throw new ApiException("Product with the same name already exists in the category");
+            }
+        }
 
         // Calculate special price
         double specialPrice = productDTO.getPrice() - ((productDTO.getDiscount() * 0.01) * productDTO.getPrice());
