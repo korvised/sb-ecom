@@ -1,7 +1,7 @@
 package com.ecommerce.service;
 
-import com.ecommerce.config.AppConstants;
 import com.ecommerce.exceptions.ApiException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,7 +14,10 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Service
-public class ImageServiceImpl implements ImageService {
+public class FileServiceImpl implements FileService {
+
+    @Value("${project.image.upload.dir}")
+    private String imageUploadPath;
 
     @Override
     public String uploadImage(MultipartFile file) {
@@ -29,10 +32,10 @@ public class ImageServiceImpl implements ImageService {
         // Generate a unique file name
         String randomId = UUID.randomUUID().toString();
         String fileName = randomId.concat(originalFileName.substring(originalFileName.lastIndexOf(".")));
-        String path = AppConstants.IMAGE_UPLOAD_PATH + File.separator + fileName;
+        String path = imageUploadPath + File.separator + fileName;
 
         // Check if path exists, if not create the directory
-        File folder = new File(AppConstants.IMAGE_UPLOAD_PATH);
+        File folder = new File(imageUploadPath);
         if (!folder.exists()) {
             System.out.println("Creating directory to upload image");
             boolean created = folder.mkdirs();
@@ -54,7 +57,7 @@ public class ImageServiceImpl implements ImageService {
 
     @Override
     public void deleteImage(String fileName) {
-        String path = AppConstants.IMAGE_UPLOAD_PATH + File.separator + fileName;
+        String path = imageUploadPath + File.separator + fileName;
         File file = new File(path);
         if (file.exists()) {
             if (file.delete()) {

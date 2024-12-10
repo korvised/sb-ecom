@@ -25,7 +25,7 @@ public class ProductServiceImpl implements ProductService {
 
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
-    private final ImageService imageService;
+    private final FileService imageService;
     private final ModelMapper modelMapper;
 
     @Override
