@@ -1,7 +1,5 @@
 package com.ecommerce.service;
 
-import com.ecommerce.config.AppConstants;
-import com.ecommerce.exceptions.ApiException;
 import com.ecommerce.exceptions.ResourceNotFoundException;
 import com.ecommerce.model.Category;
 import com.ecommerce.model.Product;
@@ -17,16 +15,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
 
 @AllArgsConstructor
 @Service
@@ -34,6 +25,7 @@ public class ProductServiceImpl implements ProductService {
 
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
+    private final ImageService imageService;
     private final ModelMapper modelMapper;
 
     @Override
@@ -92,7 +84,6 @@ public class ProductServiceImpl implements ProductService {
         double specialPrice = productDTO.getPrice() - ((productDTO.getDiscount() * 0.01) * productDTO.getPrice());
 
         Product product = modelMapper.map(productDTO, Product.class);
-        product.setImage("default.png");
         product.setSpecialPrice(specialPrice);
         product.setCategory(category);
 
@@ -106,8 +97,13 @@ public class ProductServiceImpl implements ProductService {
         Product existingProduct = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "ProductId", productId));
 
-        // Save the image to the file system
-        String fileName = uploadImage(image);
+        // Delete the existing image from the file system
+        if (existingProduct.getImage() != null) {
+            imageService.deleteImage(existingProduct.getImage());
+        }
+
+        // Save the new image to the file system
+        String fileName = imageService.uploadImage(image);
 
         // Update the product image
         existingProduct.setImage(fileName);
@@ -138,45 +134,12 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void deleteProduct(Long productId) {
-        productRepository.findById(productId)
-                .ifPresentOrElse(
-                        productRepository::delete,
-                        () -> {
-                            throw new ResourceNotFoundException("Product", "ProductId", productId);
-                        }
-                );
-    }
+        Product product = productRepository.findById(productId).
+                orElseThrow(() -> new ResourceNotFoundException("Product", "ProductId", productId));
 
+        // Delete the image from the file system
+        imageService.deleteImage(product.getImage());
 
-    private String uploadImage(MultipartFile image) {
-        // File name of current / original image
-        String originalFileName = StringUtils.cleanPath(Objects.requireNonNull(image.getOriginalFilename()));
-
-        // Generate a unique file name
-        String randomId = UUID.randomUUID().toString();
-        String fileName = randomId.concat(originalFileName.substring(originalFileName.lastIndexOf(".")));
-        String path = AppConstants.IMAGE_UPLOAD_PATH + File.separator + fileName;
-
-        System.out.println("Path: " + path);
-
-        // Check if path exists, if not create the directory
-        File folder = new File(AppConstants.IMAGE_UPLOAD_PATH);
-        if (!folder.exists()) {
-            System.out.println("Creating directory to upload image");
-            boolean created = folder.mkdirs();
-            if (!created) {
-                throw new ApiException("Failed to create directory to upload image");
-            }
-        }
-
-        // Copy the image to the directory
-        try {
-            Files.copy(image.getInputStream(), Paths.get(path));
-        } catch (IOException e) {
-            System.out.println("Failed to upload image " + e);
-            throw new ApiException("Failed to upload image " + e.getMessage());
-        }
-
-        return fileName;
+        productRepository.delete(product);
     }
 }
