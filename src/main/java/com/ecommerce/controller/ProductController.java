@@ -8,13 +8,14 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/v1/products")
 public class ProductController {
 
-    private ProductService productService;
+    private final ProductService productService;
 
     @GetMapping
     public ResponseEntity<ProductResponse> getAllProducts(
@@ -39,6 +40,12 @@ public class ProductController {
     public ResponseEntity<ProductDTO> addProduct(@RequestBody ProductDTO productDTO, @PathVariable Long categoryId) {
         ProductDTO addedProduct = productService.addProduct(productDTO, categoryId);
         return ResponseEntity.status(HttpStatus.CREATED).body(addedProduct);
+    }
+
+    @PatchMapping("/{productId}/image")
+    public ResponseEntity<ProductDTO> updateProductImage(@PathVariable Long productId, @RequestParam("image") MultipartFile image) {
+        ProductDTO updatedProduct = productService.updateProductImage(productId, image);
+        return ResponseEntity.ok(updatedProduct);
     }
 
     @PutMapping("/{productId}")

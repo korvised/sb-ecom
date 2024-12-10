@@ -1,5 +1,7 @@
 package com.ecommerce.service;
 
+import com.ecommerce.config.AppConstants;
+import com.ecommerce.exceptions.ApiException;
 import com.ecommerce.exceptions.ResourceNotFoundException;
 import com.ecommerce.model.Category;
 import com.ecommerce.model.Product;
@@ -15,8 +17,16 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 @AllArgsConstructor
 @Service
@@ -92,6 +102,22 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public ProductDTO updateProductImage(Long productId, MultipartFile image) {
+        Product existingProduct = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product", "ProductId", productId));
+
+        // Save the image to the file system
+        String fileName = uploadImage(image);
+
+        // Update the product image
+        existingProduct.setImage(fileName);
+
+        Product updatedProduct = productRepository.save(existingProduct);
+
+        return modelMapper.map(updatedProduct, ProductDTO.class);
+    }
+
+    @Override
     public ProductDTO updateProduct(Long productId, ProductDTO productDTO) {
         Product existingProduct = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "ProductId", productId));
@@ -119,5 +145,38 @@ public class ProductServiceImpl implements ProductService {
                             throw new ResourceNotFoundException("Product", "ProductId", productId);
                         }
                 );
+    }
+
+
+    private String uploadImage(MultipartFile image) {
+        // File name of current / original image
+        String originalFileName = StringUtils.cleanPath(Objects.requireNonNull(image.getOriginalFilename()));
+
+        // Generate a unique file name
+        String randomId = UUID.randomUUID().toString();
+        String fileName = randomId.concat(originalFileName.substring(originalFileName.lastIndexOf(".")));
+        String path = AppConstants.IMAGE_UPLOAD_PATH + File.separator + fileName;
+
+        System.out.println("Path: " + path);
+
+        // Check if path exists, if not create the directory
+        File folder = new File(AppConstants.IMAGE_UPLOAD_PATH);
+        if (!folder.exists()) {
+            System.out.println("Creating directory to upload image");
+            boolean created = folder.mkdirs();
+            if (!created) {
+                throw new ApiException("Failed to create directory to upload image");
+            }
+        }
+
+        // Copy the image to the directory
+        try {
+            Files.copy(image.getInputStream(), Paths.get(path));
+        } catch (IOException e) {
+            System.out.println("Failed to upload image " + e);
+            throw new ApiException("Failed to upload image " + e.getMessage());
+        }
+
+        return fileName;
     }
 }
