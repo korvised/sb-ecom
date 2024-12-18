@@ -3,14 +3,17 @@ package com.ecommerce.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity(name = "addresses")
 @Data
+@AllArgsConstructor
 @NoArgsConstructor
 public class Address {
     @Id
@@ -41,6 +44,7 @@ public class Address {
     @Size(min = 6, message = "Postal code must be at least 6 characters long")
     private String postalCode;
 
+    @ToString.Exclude
     @ManyToMany(mappedBy = "addresses")
     private List<User> users = new ArrayList<>();
 
