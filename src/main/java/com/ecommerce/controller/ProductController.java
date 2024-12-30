@@ -13,12 +13,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/api/v1/products")
+@RequestMapping("/api/v1")
 public class ProductController {
 
     private final ProductService productService;
 
-    @GetMapping
+    @GetMapping("/public/products")
     public ResponseEntity<ProductResponse> getAllProducts(
             @RequestParam(name = "search", required = false) String search,
             @RequestParam(name = "categoryId", required = false) Long categoryId,
@@ -31,31 +31,31 @@ public class ProductController {
         return ResponseEntity.ok(productResponse);
     }
 
-    @GetMapping("/{productId}")
+    @GetMapping("/public/{productId}")
     public ResponseEntity<ProductDTO> getProductById(@PathVariable Long productId) {
         ProductDTO productDTO = productService.getProductById(productId);
         return ResponseEntity.ok(productDTO);
     }
 
-    @PostMapping("/category/{categoryId}")
+    @PostMapping("/admin/category/{categoryId}")
     public ResponseEntity<ProductDTO> addProduct(@Valid @RequestBody ProductDTO productDTO, @PathVariable Long categoryId) {
         ProductDTO addedProduct = productService.addProduct(productDTO, categoryId);
         return ResponseEntity.status(HttpStatus.CREATED).body(addedProduct);
     }
 
-    @PatchMapping("/{productId}/image")
+    @PatchMapping("/admin/{productId}/image")
     public ResponseEntity<ProductDTO> updateProductImage(@PathVariable Long productId, @RequestParam("image") MultipartFile image) {
         ProductDTO updatedProduct = productService.updateProductImage(productId, image);
         return ResponseEntity.ok(updatedProduct);
     }
 
-    @PutMapping("/{productId}")
+    @PutMapping("/admin/{productId}")
     public ResponseEntity<ProductDTO> updateProduct(@Valid @PathVariable Long productId, @RequestBody ProductDTO productDTO) {
         ProductDTO updatedProduct = productService.updateProduct(productId, productDTO);
         return ResponseEntity.ok(updatedProduct);
     }
 
-    @DeleteMapping("/{productId}")
+    @DeleteMapping("/admin/{productId}")
     public ResponseEntity<String> deleteProduct(@PathVariable Long productId) {
         productService.deleteProduct(productId);
         return ResponseEntity.ok("Product deleted successfully");

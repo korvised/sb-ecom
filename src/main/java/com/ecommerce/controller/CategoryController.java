@@ -12,12 +12,12 @@ import org.springframework.web.bind.annotation.*;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/api/v1/categories")
+@RequestMapping("/api/v1")
 public class CategoryController {
 
     private final CategoryService categoryService;
 
-    @GetMapping
+    @GetMapping("/public/categories")
     public ResponseEntity<CategoryResponse> getAllCategories(
             @RequestParam(name = "page", defaultValue = AppConstants.PAGE_NUMBER) Integer pageNumber,
             @RequestParam(name = "page", defaultValue = AppConstants.PAGE_SIZE) Integer pageSize,
@@ -28,19 +28,19 @@ public class CategoryController {
         return ResponseEntity.ok(categoryResponse);
     }
 
-    @PostMapping
+    @PostMapping("/admin/categories")
     public ResponseEntity<CategoryDTO> createCategory(@Valid @RequestBody CategoryDTO category) {
         CategoryDTO createdCategory = categoryService.createCategory(category);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdCategory);
     }
 
-    @PutMapping("/{categoryId}")
+    @PutMapping("/amin/{categoryId}")
     public ResponseEntity<CategoryDTO> updateCategory(@PathVariable long categoryId, @Valid @RequestBody CategoryDTO category) {
         CategoryDTO updatedCategory = categoryService.updateCategory(categoryId, category);
         return ResponseEntity.ok(updatedCategory);
     }
 
-    @DeleteMapping("/{categoryId}")
+    @DeleteMapping("/admin/{categoryId}")
     public ResponseEntity<String> deleteCategory(@PathVariable long categoryId) {
         categoryService.deleteCategory(categoryId);
         return ResponseEntity.ok("Category deleted");
