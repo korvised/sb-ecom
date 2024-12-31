@@ -37,25 +37,25 @@ public class ProductController {
         return ResponseEntity.ok(productDTO);
     }
 
-    @PostMapping("/admin/category/{categoryId}")
+    @PostMapping("/admin/products/category/{categoryId}")
     public ResponseEntity<ProductDTO> addProduct(@Valid @RequestBody ProductDTO productDTO, @PathVariable Long categoryId) {
         ProductDTO addedProduct = productService.addProduct(productDTO, categoryId);
         return ResponseEntity.status(HttpStatus.CREATED).body(addedProduct);
     }
 
-    @PatchMapping("/admin/{productId}/image")
+    @PatchMapping("/admin/products/{productId}/image")
     public ResponseEntity<ProductDTO> updateProductImage(@PathVariable Long productId, @RequestParam("image") MultipartFile image) {
         ProductDTO updatedProduct = productService.updateProductImage(productId, image);
         return ResponseEntity.ok(updatedProduct);
     }
 
-    @PutMapping("/admin/{productId}")
+    @PutMapping("/admin/products/{productId}")
     public ResponseEntity<ProductDTO> updateProduct(@Valid @PathVariable Long productId, @RequestBody ProductDTO productDTO) {
         ProductDTO updatedProduct = productService.updateProduct(productId, productDTO);
         return ResponseEntity.ok(updatedProduct);
     }
 
-    @DeleteMapping("/admin/{productId}")
+    @DeleteMapping("/admin/products/{productId}")
     public ResponseEntity<String> deleteProduct(@PathVariable Long productId) {
         productService.deleteProduct(productId);
         return ResponseEntity.ok("Product deleted successfully");
