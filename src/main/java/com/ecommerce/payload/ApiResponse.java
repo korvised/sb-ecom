@@ -6,6 +6,7 @@ import lombok.Data;
 public class ApiResponse<T> {
     private boolean success;
     private String message;
+    private Object errors;
     private T data;
 
     public ApiResponse(boolean success, String message, T data) {

@@ -8,8 +8,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -21,17 +21,28 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<Map<String, String>>> methodArgumentNotValidHandler(MethodArgumentNotValidException e) {
-        Map<String, String> response = new HashMap<>();
+    public ResponseEntity<ApiResponse<List<String>>> methodArgumentNotValidHandler(MethodArgumentNotValidException e) {
+        ApiResponse<List<String>> response = new ApiResponse<>(false, "Validation failed");
+
+        /*
+        Map<String, String> errors = new HashMap<>();
         e.getBindingResult().getAllErrors().forEach(err -> {
             String fieldName = ((FieldError) err).getField();
             String errorMessage = err.getDefaultMessage();
-            response.put(fieldName, errorMessage);
+            errors.put(fieldName, errorMessage);
+        });
+         */
+
+        List<String> errors = new ArrayList<>();
+        e.getBindingResult().getAllErrors().forEach(err -> {
+            String fieldName = ((FieldError) err).getField();
+            String errorMessage = err.getDefaultMessage();
+            errors.add(fieldName + " " + errorMessage);  // Combine field name and error message
         });
 
-        ApiResponse<Map<String, String>> apiResponse = new ApiResponse<>(false, "Validation failed", response);
+        response.setErrors(errors);
 
-        return new ResponseEntity<>(apiResponse, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)

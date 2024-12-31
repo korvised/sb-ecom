@@ -43,7 +43,7 @@ public class AuthController {
     private final UserRepository userRepository;
 
     @PostMapping("/signin")
-    public ResponseEntity<?> authenticateUser(@RequestBody SigninRequest signinRequest) {
+    public ResponseEntity<?> authenticateUser(@Valid @RequestBody SigninRequest signinRequest) {
         Authentication authentication;
 
         try {
