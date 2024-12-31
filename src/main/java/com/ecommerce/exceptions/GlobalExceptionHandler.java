@@ -1,6 +1,6 @@
 package com.ecommerce.exceptions;
 
-import com.ecommerce.payload.APIResponse;
+import com.ecommerce.payload.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -15,13 +15,13 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<APIResponse> globalExceptionHandler(Exception e) {
-        APIResponse apiResponse = new APIResponse(false, e.getMessage());
+    public ResponseEntity<ApiResponse<Void>> globalExceptionHandler(Exception e) {
+        ApiResponse<Void> apiResponse = new ApiResponse<>(false, e.getMessage());
         return new ResponseEntity<>(apiResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> methodArgumentNotValidHandler(MethodArgumentNotValidException e) {
+    public ResponseEntity<ApiResponse<Map<String, String>>> methodArgumentNotValidHandler(MethodArgumentNotValidException e) {
         Map<String, String> response = new HashMap<>();
         e.getBindingResult().getAllErrors().forEach(err -> {
             String fieldName = ((FieldError) err).getField();
@@ -29,18 +29,20 @@ public class GlobalExceptionHandler {
             response.put(fieldName, errorMessage);
         });
 
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        ApiResponse<Map<String, String>> apiResponse = new ApiResponse<>(false, "Validation failed", response);
+
+        return new ResponseEntity<>(apiResponse, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<APIResponse> resourceNotFoundHandler(ResourceNotFoundException e) {
-        APIResponse apiResponse = new APIResponse(false, e.getMessage());
+    public ResponseEntity<ApiResponse<Void>> resourceNotFoundHandler(ResourceNotFoundException e) {
+        ApiResponse<Void> apiResponse = new ApiResponse<>(false, e.getMessage());
         return new ResponseEntity<>(apiResponse, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(ApiException.class)
-    public ResponseEntity<APIResponse> apiExceptionHandler(ApiException e) {
-        APIResponse apiResponse = new APIResponse(false, e.getMessage());
+    public ResponseEntity<ApiResponse<Void>> apiExceptionHandler(ApiException e) {
+        ApiResponse<Void> apiResponse = new ApiResponse<>(false, e.getMessage());
         return new ResponseEntity<>(apiResponse, HttpStatus.BAD_REQUEST);
     }
 }
